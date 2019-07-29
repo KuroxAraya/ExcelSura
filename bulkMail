@@ -1,0 +1,67 @@
+Sub generarIPC()
+
+    'DEFINE LIBRO COMO FUENTE PARA EL MAIL
+    Dim libro As Workbook
+    Set libro = ThisWorkbook
+    
+    'DEFINE LA PLANILLA DE MOVIMIENTOS COMO FUENTE
+    Dim planillaFuente As Worksheet
+    Set planillaFuente = libro.Worksheets("Base")
+    'DEFINE LA PLANILLA DE REFERENCIAS COMO REFERENCIA PARA MAILS
+    Dim planillaFuenteM As Worksheet
+    Set planillaFuenteM = libro.Worksheets("REF Y FUN")
+    
+    'CONTADOR TABLA MATRIZ
+    Dim filaIndiceFuente As Long
+    Dim filaFuenteUltima As Long
+    filaFuenteUltima = planillaFuente.Cells(Rows.Count, 3).End(xlUp).Row
+    'CONTADOR TABLA MAIL
+    Dim filaIndiceFuenteM As Long
+    Dim filaFuenteUltimaM As Long
+    filaFuenteUltimaM = planillaFuenteM.Cells(Rows.Count, 7).End(xlUp).Row
+    
+    'LIBRERÍAS MAIL
+    Dim wApp As Word.Application
+    Dim wDoc As Word.Document
+    Set wApp = CreateObject("Word.Application")
+    wApp.Visible = True
+    
+
+    'SELECCIÓN DE DOCUMENTOS
+    Dim promptDocumento As FileDialog
+    Dim cadenaDocumento As String
+    Set promptDocumento = Application.FileDialog(msoFileDialogFilePicker)
+    With promptDocumento
+        .Title = "Escoja archivo matriz :"
+        .AllowMultiSelect = False
+        .InitialFileName = Application.DefaultFilePath
+            If .Show <> -1 Then
+                MsgBox "No se seleccionó ningún archivo, el proceso se cancela."
+                Exit Sub
+            End If
+        cadenaDocumento = .SelectedItems(1)
+    End With
+
+    For filaIndiceFuente = 2 To 3 'filaFuenteUltima
+        Set wDoc = wApp.Documents.Open(cadenaDocumento)
+        With wDoc
+'            .Application.Selection.Find.MatchWholeWord = False
+'            .Application.Selection.Find.Text = "#JEFES_DIRECTOS#"
+'            .Application.Selection.Find.Execute
+'            .Application.Selection.Delete
+'            .Application.Selection = planillaFuente.Cells(filaIndiceFuente, "F").Value
+            
+            .Application.Selection.Find.Text = "#RUT_COMPANIA#"
+            wDoc.Application.Selection.Find.Execute
+            wDoc.Application.Selection.Delete
+            wDoc.Application.Selection = planillaFuente.Cells(filaIndiceFuente, "E")
+        
+            wDoc.SaveAs2 Filename:="C:\Users\negro\OneDrive\Escritorio\pajaron\" & planillaFuente.Cells(filaIndiceFuente, 3) & ".docx"
+        
+            '.SaveAs2 Filename:=(planillaFuente.Cells(filaIndiceFuente, 3) & ".docx"), _
+            'FileFormat:=wdFormatXMLDocument, AddtoRecentFiles:=False
+            wDoc.Close
+            End With
+    Next filaIndiceFuente
+End Sub
+
